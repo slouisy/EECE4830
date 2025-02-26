@@ -1,14 +1,12 @@
 import socket
 import struct
-import random
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5005
 PACKET_SIZE = 1024
-ERROR_RATE = 0.0  # Set error rate (0.0 to 0.6 for 0% to 60% corruption)
 
 def calculate_checksum(data):
-    """Custom 16-bit checksum similar to UDP"""
+#Custom 16-bit checksum
     checksum = 0
     for i in range(0, len(data), 2):
         word = data[i] + (data[i+1] << 8) if i + 1 < len(data) else data[i]
@@ -18,16 +16,8 @@ def calculate_checksum(data):
     return (~checksum & 0xFFFF).to_bytes(2, "big")  # One’s complement
 
 def is_corrupt(data, received_checksum):
-    """Verify if checksum is correct"""
+    #Verify if checksum is correct
     return received_checksum != calculate_checksum(data)
-
-def introduce_errors(data):
-    """Randomly corrupts data based on the ERROR_RATE"""
-    data = bytearray(data)
-    for i in range(len(data)):
-        if random.random() < ERROR_RATE:
-            data[i] ^= 0xFF  # Flip all bits of the byte
-    return bytes(data)
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -44,9 +34,6 @@ def main():
 
             seq_num, received_checksum = struct.unpack("!B2s", packet[:3])
             data = packet[3:]
-            
-            # Introduce errors intentionally
-            data = introduce_errors(data)
 
             # Check for EOF (End of File) signal
             if seq_num == 255:

@@ -8,7 +8,7 @@ PACKET_SIZE = 1024
 ERROR_RATE = 0.0  # Adjustable error rate (0 to 60)
 
 def calculate_checksum(data):
-    """Custom 16-bit checksum similar to UDP"""
+    #Custom 16-bit checksum similar to UDP#
     checksum = 0
     for i in range(0, len(data), 2):
         word = data[i] + (data[i+1] << 8) if i + 1 < len(data) else data[i]
@@ -18,11 +18,11 @@ def calculate_checksum(data):
     return (~checksum & 0xFFFF).to_bytes(2, "big")  # One’s complement
 
 def is_corrupt(data, received_checksum):
-    """Verify if checksum is correct"""
+    #Verify if checksum is correct#
     return received_checksum != calculate_checksum(data)
 
 def introduce_errors(data, error_rate):
-    """Randomly corrupt bits in the data with a given probability"""
+    #Randomly corrupt bits in the data with a given probability#
     if not data:  # Check if data is empty
         return data  # Return as-is to avoid errors
     

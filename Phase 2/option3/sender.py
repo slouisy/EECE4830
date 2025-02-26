@@ -7,7 +7,7 @@ UDP_PORT = 5005
 PACKET_SIZE = 1024
 
 def calculate_checksum(data):
-    """Custom 16-bit checksum similar to UDP"""
+    #Custom 16-bit checksum similar to UDP#
     checksum = 0
     for i in range(0, len(data), 2):
         word = data[i] + (data[i+1] << 8) if i + 1 < len(data) else data[i]
@@ -17,7 +17,7 @@ def calculate_checksum(data):
     return (~checksum & 0xFFFF).to_bytes(2, "big")  # One’s complement
 
 def make_packet(seq_num, data):
-    """Create packet with sequence number and custom checksum"""
+    #Create packet with sequence number and custom checksum#
     checksum = calculate_checksum(data)
     header = struct.pack("!B2s", seq_num, checksum)  # 1 byte seq num, 2 bytes checksum
     return header + data
