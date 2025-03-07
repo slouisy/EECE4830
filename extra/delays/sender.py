@@ -7,7 +7,9 @@ UDP_IP = "127.0.0.1"
 UDP_PORT = 5005
 PACKET_SIZE = 1024
 
+delay_range = 0
 retransmissions = 0
+total_delay = 0
 
 def calculate_checksum(data):
     checksum = 0
@@ -24,7 +26,7 @@ def make_packet(seq_num, data):
     return header + data
 
 def send_file(filename, sock, addr):
-    global retransmissions
+    global retransmissions, total_delay
     with open(filename, "rb") as f:
         seq_num = 0
         timeout = 0.1  # Initial timeout
@@ -53,7 +55,12 @@ def send_file(filename, sock, addr):
             send_time = time.time()
 
             while True:
-                delay = random.uniform(0, 0.5)  # Simulated network delay
+                delay = 0
+                if random.random() < delay_range: #delay based on range
+                    delay = random.uniform(0, 0.5)  # Simulated network delay
+                
+                total_delay += delay
+                print(f"Simulated Network Delay: {delay:.2f}s")
                 time.sleep(delay)
 
                 sock.sendto(packet, addr)
@@ -66,13 +73,7 @@ def send_file(filename, sock, addr):
 
                     if ack_seq == seq_num:
                         rtt = time.time() - send_time
-                        timeout = min(0.5, max(rtt * 1.5, 0))  # Timeout between 0 and 500ms
-                        # Introduce randomness by scaling the timeout
-                        if random.random() < 0.05: #only delay 10% of the time
-                            random_factor = random.uniform(0, 1)  # Random factor between 0 and 1.0
-                            timeout *= random_factor  # Apply the randomness
-                        else:
-                            timeout = 0 #dont set a timeout
+                        timeout = min(0.5, rtt * 1.5)  # Adaptive timeout
 
                         print(f"ACK {ack_seq} received, moving to next packet.")
                         if timeout:
@@ -93,6 +94,10 @@ def send_file(filename, sock, addr):
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     receiver_addr = (UDP_IP, UDP_PORT)
+
+    global delay_range
+    delay_range = int(input("Enter delay range: "))
+    delay_range = delay_range/100
 
     filename = "image.jpg"
     start_time = time.time()

@@ -7,6 +7,8 @@ UDP_IP = "127.0.0.1"
 UDP_PORT = 5005
 PACKET_SIZE = 1024
 
+delay_range = 0
+
 def calculate_checksum(data):
     checksum = 0
     for i in range(0, len(data), 2):
@@ -53,7 +55,7 @@ def main():
             else:
                 print(f"Corrupt packet or unexpected sequence number! Resending last ACK {last_ack.hex()}")
 
-            if random.random() < 0.05: #only delay 5% of the time
+            if random.random() < delay_range: #only delay 10% of the time
                 delay = random.uniform(0, 0.5);
                 print(f"Delaying ACK {delay:.2f}")
                 time.sleep(delay)  # Simulated delay before sending ACK
@@ -63,4 +65,7 @@ def main():
     sock.close()
 
 if __name__ == "__main__":
+    delay_range = int(input("Enter delay range: "))
+    delay_range = delay_range/100
+
     main()
